@@ -1,0 +1,6 @@
+account_id,name,type,balance
+ACC-001,Asset Account,Asset,1926.36
+ACC-002,Liability Account,Liability,1791.4
+ACC-003,Equity Account,Equity,4160.82
+ACC-004,Income Account,Income,7816.6
+ACC-005,Expense Account,Expense,9874.0

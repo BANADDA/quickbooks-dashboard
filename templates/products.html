@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="header-title">
+            <h1>Products</h1>
+            <p class="subtitle">Manage your inventory and product sales</p>
+        </div>
+        <div class="search-filter">
+            <div class="search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="productSearch" placeholder="Search products...">
+            </div>
+            <div class="filter-dropdown">
+                <select id="typeFilter">
+                    <option value="all">All Types</option>
+                    <option value="Service">Service</option>
+                    <option value="Product">Product</option>
+                    <option value="Expense">Expense</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="card-header">
+            <h3><i class="fa-solid fa-box"></i> Product List</h3>
+            <div class="card-actions">
+                <button class="btn-primary"><i class="fa-solid fa-plus"></i> Add Product</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Type</th>
+                        <th>Price</th>
+                        <th>Total Sales</th>
+                        <th>Units Sold</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr data-type="{{ product.type }}">
+                        <td class="product-cell">
+                            <div class="product-icon">
+                                <i class="fa-solid {{ 'fa-box' if product.type == 'Product' else 'fa-wrench' if product.type == 'Service' else 'fa-file-invoice' }}"></i>
+                            </div>
+                            <div class="product-info">
+                                <span class="product-name">{{ product.name }}</span>
+                                <span class="product-desc">{{ product.description }}</span>
+                            </div>
+                        </td>
+                        <td>{{ product.type }}</td>
+                        <td class="numeric">${{ "{:,.2f}".format(product.price) }}</td>
+                        <td class="numeric">${{ "{:,.2f}".format(product.total_sales) }}</td>
+                        <td class="numeric">{{ product.total_quantity|int }}</td>
+                        <td class="actions">
+                            <button class="btn-icon"><i class="fa-solid fa-eye"></i></button>
+                            <button class="btn-icon"><i class="fa-solid fa-edit"></i></button>
+                            <button class="btn-icon text-danger"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="table-footer">
+            <div class="pagination">
+                <button class="btn-page"><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="btn-page active">1</button>
+                <button class="btn-page">2</button>
+                <button class="btn-page">3</button>
+                <button class="btn-page"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <div class="page-info">
+                Showing 1-{{ products|length }} of {{ products|length }} products
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-container">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-chart-pie"></i> Sales by Product Type</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="productTypesChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-chart-column"></i> Top Selling Products</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="topProductsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Product search and filter functionality
+    const searchInput = document.getElementById('productSearch');
+    const typeFilter = document.getElementById('typeFilter');
+    const tableRows = document.querySelectorAll('.data-table tbody tr');
+    
+    function filterTable() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const typeValue = typeFilter.value;
+        
+        tableRows.forEach(row => {
+            const productName = row.querySelector('.product-name').textContent.toLowerCase();
+            const productDesc = row.querySelector('.product-desc').textContent.toLowerCase();
+            const productType = row.getAttribute('data-type');
+            
+            const matchesSearch = productName.includes(searchTerm) || productDesc.includes(searchTerm);
+            const matchesType = typeValue === 'all' || productType === typeValue;
+            
+            if (matchesSearch && matchesType) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+    
+    searchInput.addEventListener('keyup', filterTable);
+    typeFilter.addEventListener('change', filterTable);
+    
+    // Get sales by product type
+    const productTypes = {};
+    tableRows.forEach(row => {
+        const type = row.getAttribute('data-type');
+        const sales = parseFloat(row.querySelector('td:nth-child(4)').textContent.replace('$', '').replace(',', ''));
+        
+        if (!productTypes[type]) {
+            productTypes[type] = 0;
+        }
+        productTypes[type] += sales;
+    });
+    
+    // Product types chart
+    const productTypesCtx = document.getElementById('productTypesChart').getContext('2d');
+    new Chart(productTypesCtx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(productTypes),
+            datasets: [{
+                data: Object.values(productTypes),
+                backgroundColor: ['#6366F1', '#10B981', '#F59E0B'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            return `${label}: $${value.toLocaleString()}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Top selling products chart
+    const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+    const topProducts = [];
+    
+    // Get top 5 products by sales
+    Array.from(tableRows)
+        .map(row => {
+            return {
+                name: row.querySelector('.product-name').textContent,
+                sales: parseFloat(row.querySelector('td:nth-child(4)').textContent.replace('$', '').replace(',', ''))
+            };
+        })
+        .sort((a, b) => b.sales - a.sales)
+        .slice(0, 5)
+        .forEach(product => topProducts.push(product));
+    
+    new Chart(topProductsCtx, {
+        type: 'bar',
+        data: {
+            labels: topProducts.map(p => p.name),
+            datasets: [{
+                label: 'Sales',
+                data: topProducts.map(p => p.sales),
+                backgroundColor: '#6366F1',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

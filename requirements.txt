@@ -1,0 +1,7 @@
+flask
+pandas
+numpy
+SQLAlchemy
+# Uncomment the following when ready to use QuickBooks API
+intuit-oauth
+quickbooks-python

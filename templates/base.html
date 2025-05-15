@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickBooks Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- Fallback if CDN fails -->
+    <script>
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js failed to load from CDN, trying alternate source');
+            var script = document.createElement('script');
+            script.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js";
+            document.head.appendChild(script);
+        }
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>QuickBooks Analytics</span>
+            </div>
+            <div class="navbar-links">
+                <a href="/" class="{{ 'active' if active_page == 'dashboard' else '' }}">
+                    <i class="fa-solid fa-gauge-high"></i> Dashboard
+                </a>
+                <a href="/invoices" class="{{ 'active' if active_page == 'invoices' else '' }}">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> Invoices
+                </a>
+                <a href="/customers" class="{{ 'active' if active_page == 'customers' else '' }}">
+                    <i class="fa-solid fa-users"></i> Customers
+                </a>
+                <a href="/products" class="{{ 'active' if active_page == 'products' else '' }}">
+                    <i class="fa-solid fa-box"></i> Products
+                </a>
+            </div>
+            <div class="navbar-profile">
+                <div class="profile-img">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <span>Admin</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 QuickBooks Dashboard</p>
+        </div>
+    </footer>
+    
+    <!-- Check if Chart.js is available before loading dashboard.js -->
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js failed to load from all sources');
+                alert('Error: Could not load Chart.js library. Please check console for more information.');
+            } else {
+                console.log('Chart.js loaded successfully, version:', Chart.version);
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

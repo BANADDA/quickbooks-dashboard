@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="header-title">
+            <h1>Invoices</h1>
+            <p class="subtitle">Manage your sales invoices and payment status</p>
+        </div>
+        <div class="search-filter">
+            <div class="search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="invoiceSearch" placeholder="Search invoices...">
+            </div>
+            <div class="filter-dropdown">
+                <select id="statusFilter">
+                    <option value="all">All Statuses</option>
+                    <option value="paid">Paid</option>
+                    <option value="unpaid">Unpaid</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="card-header">
+            <h3><i class="fa-solid fa-file-invoice-dollar"></i> Invoice List</h3>
+            <div class="card-actions">
+                <button class="btn-primary"><i class="fa-solid fa-plus"></i> New Invoice</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in invoices %}
+                    <tr data-paid="{{ 'paid' if invoice.is_paid else 'unpaid' }}">
+                        <td>{{ invoice.invoice_id }}</td>
+                        <td>{{ invoice.customer_name }}</td>
+                        <td>{{ invoice.date }}</td>
+                        <td class="numeric">${{ "{:,.2f}".format(invoice.total) }}</td>
+                        <td>
+                            <span class="status-badge {{ 'paid' if invoice.is_paid else 'unpaid' }}">
+                                {{ "Paid" if invoice.is_paid else "Unpaid" }}
+                            </span>
+                        </td>
+                        <td class="actions">
+                            <button class="btn-icon"><i class="fa-solid fa-eye"></i></button>
+                            <button class="btn-icon"><i class="fa-solid fa-print"></i></button>
+                            <button class="btn-icon"><i class="fa-solid fa-edit"></i></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="table-footer">
+            <div class="pagination">
+                <button class="btn-page"><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="btn-page active">1</button>
+                <button class="btn-page">2</button>
+                <button class="btn-page">3</button>
+                <button class="btn-page"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <div class="page-info">
+                Showing 1-{{ invoices|length }} of {{ invoices|length }} invoices
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-container">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-chart-line"></i> Invoice Activity</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="invoiceActivityChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-chart-pie"></i> Payment Status</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="paymentStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Invoice search functionality
+    const searchInput = document.getElementById('invoiceSearch');
+    const tableRows = document.querySelectorAll('.data-table tbody tr');
+    const statusFilter = document.getElementById('statusFilter');
+    
+    function filterTable() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+        
+        tableRows.forEach(row => {
+            const invoiceNumber = row.querySelector('td:first-child').textContent.toLowerCase();
+            const customer = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            const isPaid = row.getAttribute('data-paid');
+            
+            const matchesSearch = invoiceNumber.includes(searchTerm) || customer.includes(searchTerm);
+            const matchesStatus = statusValue === 'all' || isPaid === statusValue;
+            
+            if (matchesSearch && matchesStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+    
+    searchInput.addEventListener('keyup', filterTable);
+    statusFilter.addEventListener('change', filterTable);
+    
+    // Count paid vs unpaid invoices
+    const paidInvoices = document.querySelectorAll('tr[data-paid="paid"]').length;
+    const unpaidInvoices = document.querySelectorAll('tr[data-paid="unpaid"]').length;
+    
+    // Payment status chart
+    const paymentStatusCtx = document.getElementById('paymentStatusChart').getContext('2d');
+    new Chart(paymentStatusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Paid', 'Unpaid'],
+            datasets: [{
+                data: [paidInvoices, unpaidInvoices],
+                backgroundColor: ['#10B981', '#EF4444'],
+                borderWidth: 0,
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Monthly invoice activity chart
+    const invoiceActivityCtx = document.getElementById('invoiceActivityChart').getContext('2d');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    
+    new Chart(invoiceActivityCtx, {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Invoices Created',
+                data: [12, 19, 15, 8, 22, 14],
+                backgroundColor: '#6366F1',
+                borderRadius: 4
+            }, {
+                label: 'Invoices Paid',
+                data: [8, 15, 10, 7, 18, 9],
+                backgroundColor: '#10B981',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

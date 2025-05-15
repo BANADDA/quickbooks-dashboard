@@ -1,0 +1,11 @@
+customer_id,name,email,phone
+CUST-001,Customer 1,customer1@example.com,555-329-6391
+CUST-002,Customer 2,customer2@example.com,555-230-6336
+CUST-003,Customer 3,customer3@example.com,555-542-3023
+CUST-004,Customer 4,customer4@example.com,555-525-3405
+CUST-005,Customer 5,customer5@example.com,555-889-3673
+CUST-006,Customer 6,customer6@example.com,555-543-7997
+CUST-007,Customer 7,customer7@example.com,555-741-1092
+CUST-008,Customer 8,customer8@example.com,555-914-6298
+CUST-009,Customer 9,customer9@example.com,555-816-1204
+CUST-010,Customer 10,customer10@example.com,555-792-2710

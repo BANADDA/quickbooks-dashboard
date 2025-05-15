@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="header-title">
+            <h1>Financial Overview</h1>
+            <p class="subtitle">Real-time insights from your QuickBooks data</p>
+        </div>
+        <div class="date-filter">
+            <label><i class="fa-solid fa-calendar-days"></i> Date Range:</label>
+            <select id="dateRange">
+                <option value="30">Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+                <option value="180" selected>Last 6 Months</option>
+                <option value="365">Last Year</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="metrics-container">
+        <div class="metric-card">
+            <div class="metric-icon revenue">
+                <i class="fa-solid fa-money-bill-wave"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Total Revenue</h3>
+                <p class="metric-value" id="totalRevenue">$0</p>
+                <div class="metric-change" id="revenueChange">0%</div>
+            </div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon expenses">
+                <i class="fa-solid fa-file-invoice"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Total Expenses</h3>
+                <p class="metric-value" id="totalExpenses">$0</p>
+                <div class="metric-change" id="expensesChange">0%</div>
+            </div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon profit">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Net Profit</h3>
+                <p class="metric-value" id="netProfit">$0</p>
+                <div class="metric-change" id="profitChange">0%</div>
+            </div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon invoices">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Invoice Count</h3>
+                <p class="metric-value" id="invoiceCount">0</p>
+                <div class="metric-change" id="invoiceChange">0%</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chart-row">
+        <div class="chart-container">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-chart-line"></i> Revenue Trend</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="salesTrendChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-users"></i> Top 5 Customers</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="customersChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chart-row">
+        <div class="chart-container">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-box"></i> Product Sales</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="productsChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-file-circle-check"></i> Invoice Status</h3>
+            </div>
+            <div class="chart-with-info">
+                <div class="chart-half">
+                    <canvas id="invoiceStatusChart"></canvas>
+                </div>
+                <div class="info-half">
+                    <div class="receivables-box">
+                        <span class="label">Total Receivables</span>
+                        <span id="totalReceivables" class="important-metric">$0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="aging-container">
+        <div class="card-header">
+            <h3><i class="fa-solid fa-calendar-day"></i> Accounts Receivable Aging</h3>
+        </div>
+        <div class="aging-boxes" id="agingBoxes"></div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+item_id,name,description,type,price
+ITEM-001,Product 1,Description for Product 1,Expense,34.01
+ITEM-002,Product 2,Description for Product 2,Service,459.12
+ITEM-003,Product 3,Description for Product 3,Expense,460.83
+ITEM-004,Product 4,Description for Product 4,Service,61.4
+ITEM-005,Product 5,Description for Product 5,Expense,430.51
+ITEM-006,Product 6,Description for Product 6,Expense,313.45
+ITEM-007,Product 7,Description for Product 7,Service,174.26
+ITEM-008,Product 8,Description for Product 8,Product,39.89
+ITEM-009,Product 9,Description for Product 9,Expense,455.81
+ITEM-010,Product 10,Description for Product 10,Expense,49.05
+ITEM-011,Product 11,Description for Product 11,Expense,132.29
+ITEM-012,Product 12,Description for Product 12,Service,90.44
+ITEM-013,Product 13,Description for Product 13,Service,343.62
+ITEM-014,Product 14,Description for Product 14,Service,122.26
+ITEM-015,Product 15,Description for Product 15,Service,230.3
+ITEM-016,Product 16,Description for Product 16,Expense,141.88
+ITEM-017,Product 17,Description for Product 17,Product,217.71
+ITEM-018,Product 18,Description for Product 18,Expense,441.69
+ITEM-019,Product 19,Description for Product 19,Expense,189.08
+ITEM-020,Product 20,Description for Product 20,Service,167.5

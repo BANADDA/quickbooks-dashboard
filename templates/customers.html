@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="header-title">
+            <h1>Customers</h1>
+            <p class="subtitle">View and manage your customer relationships</p>
+        </div>
+        <div class="search-filter">
+            <div class="search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="customerSearch" placeholder="Search customers...">
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="card-header">
+            <h3><i class="fa-solid fa-users"></i> Customer List</h3>
+            <div class="card-actions">
+                <button class="btn-primary"><i class="fa-solid fa-plus"></i> Add Customer</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Total Sales</th>
+                        <th>Orders</th>
+                        <th>Avg Order Value</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr>
+                        <td class="name-cell">
+                            <div class="avatar">{{ customer.name[:1] }}</div>
+                            <span>{{ customer.name }}</span>
+                        </td>
+                        <td>{{ customer.email }}</td>
+                        <td>{{ customer.phone }}</td>
+                        <td class="numeric">${{ "{:,.2f}".format(customer.total_sales) }}</td>
+                        <td class="numeric">{{ customer.transaction_count }}</td>
+                        <td class="numeric">${{ "{:,.2f}".format(customer.avg_order_value) }}</td>
+                        <td class="actions">
+                            <button class="btn-icon"><i class="fa-solid fa-eye"></i></button>
+                            <button class="btn-icon"><i class="fa-solid fa-edit"></i></button>
+                            <button class="btn-icon text-danger"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="table-footer">
+            <div class="pagination">
+                <button class="btn-page"><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="btn-page active">1</button>
+                <button class="btn-page">2</button>
+                <button class="btn-page">3</button>
+                <button class="btn-page"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <div class="page-info">
+                Showing 1-{{ customers|length }} of {{ customers|length }} customers
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-container">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-chart-pie"></i> Top Customers by Sales</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="topCustomersChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-chart-line"></i> Customer Acquisition Trend</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="customerTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Customer search functionality
+    const searchInput = document.getElementById('customerSearch');
+    const tableRows = document.querySelectorAll('.data-table tbody tr');
+    
+    searchInput.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        tableRows.forEach(row => {
+            const name = row.querySelector('.name-cell span').textContent.toLowerCase();
+            const email = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            
+            if (name.includes(searchTerm) || email.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+    
+    // Top customers chart
+    const topCustomersCtx = document.getElementById('topCustomersChart').getContext('2d');
+    const topCustomers = [
+        {% for customer in customers[:5] %}
+            {
+                name: "{{ customer.name }}",
+                sales: {{ customer.total_sales }}
+            },
+        {% endfor %}
+    ];
+    
+    new Chart(topCustomersCtx, {
+        type: 'bar',
+        data: {
+            labels: topCustomers.map(c => c.name),
+            datasets: [{
+                label: 'Total Sales',
+                data: topCustomers.map(c => c.sales),
+                backgroundColor: '#6366F1',
+                borderRadius: 4,
+                barThickness: 20,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Mock data for customer acquisition trend
+    const customerTrendCtx = document.getElementById('customerTrendChart').getContext('2d');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    const newCustomers = [5, 8, 12, 7, 9, 14];
+    
+    new Chart(customerTrendCtx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'New Customers',
+                data: newCustomers,
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 
